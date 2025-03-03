@@ -25,6 +25,8 @@ class ImageSubscriberNode:
         self.smax = 255
         self.vmax = 255
 
+        cv2.namedWindow("Org", cv2.WINDOW_NORMAL)
+
         self.bridge = CvBridge()  
         self.image_sub = rospy.Subscriber('/camera/color/image_raw', Image, self.image_callback)  
         self.image_mask_pub = rospy.Publisher('/image_mask', Image, queue_size=10)
@@ -46,14 +48,28 @@ class ImageSubscriberNode:
         self.vmax = config.HSV_V_MAX
         return config
         
+    # 定义 ROS 回调图像函数
     def image_callback(self, msg):  
         try:  
             cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")  
             src = cv_image.copy()
+            self.hsv_img = cv2.cvtColor(src, cv2.COLOR_BGR2HSV)
+            cv2.setMouseCallback("Org", self.mouse_callback)
             self.update_frame(src, self.hmin, self.hmax, self.smin, self.smax, self.vmin, self.vmax)         
         except CvBridgeError as e:  
             rospy.logerr(e)  
             return    
+
+    # 定义鼠标回调函数
+    def mouse_callback(self, event, x, y, flags, param):
+        # 当鼠标左键按下时触发
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # 确保坐标在图像范围内（防止越界）
+            if y < self.hsv_img.shape[0] and x < self.hsv_img.shape[1]:
+                # 获取HSV值（注意OpenCV的坐标是(y,x)）
+                hsv_value = self.hsv_img[y, x]
+                # 打印HSV值（H范围0-180，S/V范围0-255）
+                print(f"HSV值: H:{hsv_value[0]}, S:{hsv_value[1]}, V:{hsv_value[2]}")
     
     def update_frame(self, img, h_min, h_max, s_min, s_max, v_min, v_max):
         src_frame = img
