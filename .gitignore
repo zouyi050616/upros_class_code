@@ -7,3 +7,4 @@
 /src/upros_navigation/maps/my_lab.yaml
 /src/upros_navigation/maps/my_lab.pgm
 /src/upros_cv/scripts/e_yolo/upros_yolo/*
+/src/CMakeLists.txt
