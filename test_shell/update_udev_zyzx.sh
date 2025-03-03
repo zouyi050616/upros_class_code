@@ -4,7 +4,7 @@
 sudo rm -f /etc/udev/rules.d/w4a.rules /etc/udev/rules.d/zyzx.rules
 
 # 复制新规则文件到目标目录
-sudo cp ~/upros_class_code/src/upros_bringup/rules/zyzx.rules /etc/udev/rules.d/
+sudo cp /home/bcsh/upros_class_code/src/upros_bringup/rules/zyzx.rules /etc/udev/rules.d/
 
 # 重新加载udev规则（确保新规则生效）
 sudo udevadm control --reload-rules
