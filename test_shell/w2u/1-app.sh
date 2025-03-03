@@ -1,0 +1,1 @@
+python3 /home/bcsh/upros_class_code/src/gui/zyzx_app/main.py
