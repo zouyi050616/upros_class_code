@@ -17,3 +17,6 @@ target_link_libraries(tf_publish_node ${catkin_LIBRARIES})
 
 add_executable(tf_listen_node src/tf_listener.cpp)
 target_link_libraries(tf_listen_node ${catkin_LIBRARIES})
+
+add_executable(tf_echo_node src/tf_echo.cpp)
+target_link_libraries(tf_echo_node ${catkin_LIBRARIES})
