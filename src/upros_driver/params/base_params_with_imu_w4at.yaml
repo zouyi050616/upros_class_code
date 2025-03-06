@@ -37,7 +37,7 @@ cmd_single_servo_topic: single_servo_topic
 cmd_multiple_servo_topic: multiple_servo_topic
 
 # 是否发布机械臂关节状态
-publish_joint_state: false
+publish_joint_state: true
 # 机械臂关节id
 joint1: 1
 joint2: 2

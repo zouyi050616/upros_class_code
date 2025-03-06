@@ -137,15 +137,22 @@ bool DataFrame::data_recv(std::vector<uint8_t> data)
             continue;
         }
 
-        // 校验指令 目前只有返回一种
+        // 校验指令 目前只有返回 2 种
         if (recv_state == STATE_RECV_CMD)
         {
             if (c == CMD_READ_RETURN)
             {
                 // 指令校验成功，准备校验flash地址
-                // ROS_WARN("HEAD CMD PASS!!!!");
+                // ROS_WARN("HEAD Base CMD PASS!!!!");
                 active_rx_msg.head.cmd = c;
                 recv_state = STATE_RECV_ADD1;
+            }
+            else if (c == CMD_SERVO_READ_RETURN)
+            {
+                // 指令校验成功，准备校验flash地址
+                // ROS_WARN("HEAD Servo PASS!!!!");
+                active_rx_msg.head.cmd = c;
+                recv_state = STATE_RECV_ADD1;                
             }
             else
             {
@@ -164,7 +171,7 @@ bool DataFrame::data_recv(std::vector<uint8_t> data)
                 if (c == static_cast<unsigned char>(Read_Addr & 0xFF))
                 {
                     // flash地址低八位校验成功，准备校验flash地址高八位
-                    // ROS_WARN("HEAD ADDL PASS!!!!");
+                    // ROS_WARN("HEAD Base ADDL PASS!!!!");
                     active_rx_msg.head.addL = c;
                     recv_state = STATE_RECV_ADD2;
                 }
@@ -173,6 +180,21 @@ bool DataFrame::data_recv(std::vector<uint8_t> data)
                     // ROS_ERROR("HEAD ADDL FAILLED!!!!");
                     recv_state = STATE_RECV_FIX;
                 }
+            }
+            else if(active_rx_msg.head.cmd == CMD_SERVO_READ_RETURN)
+            {
+                if (c == static_cast<unsigned char>(Servo_Addr & 0xFF))
+                {
+                    // flash地址低八位校验成功，准备校验flash地址高八位
+                    // ROS_WARN("HEAD Servo ADDL PASS!!!!");
+                    active_rx_msg.head.addL = c;
+                    recv_state = STATE_RECV_ADD2;
+                }
+                else
+                {
+                    // ROS_ERROR("HEAD ADDL FAILLED!!!!");
+                    recv_state = STATE_RECV_FIX;
+                }               
             }
             continue;
         }
@@ -185,7 +207,7 @@ bool DataFrame::data_recv(std::vector<uint8_t> data)
                 if ((c == static_cast<unsigned char>(Read_Addr >> 8) & 0xFF))
                 {
                     // flash地址高八位校验成功，准备校验数据
-                    // ROS_WARN("HEAD ADDH PASS!!!!");
+                    // ROS_WARN("HEAD Base ADDH PASS!!!!");
                     active_rx_msg.head.addL = c;
                     recv_state = STATE_RECV_DATA;
                 }
@@ -194,6 +216,21 @@ bool DataFrame::data_recv(std::vector<uint8_t> data)
                     // ROS_ERROR("HEAD ADDH FAILLED!!!!");
                     recv_state = STATE_RECV_FIX;
                 }
+            }
+            else if(active_rx_msg.head.cmd == CMD_SERVO_READ_RETURN)
+            {
+                if ((c == static_cast<unsigned char>(Servo_Addr >> 8) & 0xFF))
+                {
+                    // flash地址高八位校验成功，准备校验数据
+                    // ROS_WARN("HEAD ADDH PASS!!!!");
+                    active_rx_msg.head.addL = c;
+                    recv_state = STATE_RECV_DATA;
+                }
+                else
+                {
+                    // ROS_ERROR("HEAD ADDH FAILLED!!!!");
+                    recv_state = STATE_RECV_FIX;
+                }                
             }
             continue;
         }
@@ -273,7 +310,7 @@ bool DataFrame::data_parse()
     case CMD_READ_RETURN:
     {
         int get_data_size = active_rx_msg.head.length - 4;
-        // ROS_INFO("get data size: %d", get_data_size);
+        // ROS_INFO("Parase base successful!!");
         // unsigned char arr[] = {active_rx_msg.data[41], active_rx_msg.data[42], active_rx_msg.data[43], active_rx_msg.data[44]};
         // std::cout << " " << DecIntToHexStr(active_rx_msg.data[41]).c_str() << " " << DecIntToHexStr(active_rx_msg.data[42]).c_str() << " " << DecIntToHexStr(active_rx_msg.data[43]).c_str() << " " << DecIntToHexStr(active_rx_msg.data[44]).c_str() << std::endl;
 
@@ -295,7 +332,8 @@ bool DataFrame::data_parse()
         break;
     }
     case CMD_SERVO_READ_RETURN:
-    {
+    { 
+        // ROS_INFO("Parase servo successful!!");
         if (active_rx_msg.head.length >= sizeof(dh->servo_pos))
         {
             memcpy(&dh->servo_pos, active_rx_msg.data, sizeof(dh->servo_pos));
@@ -419,7 +457,7 @@ void DataFrame::recv_thread_func()
                 }
             }
             // 适当休眠避免CPU占用过高
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         catch (const std::exception &e)
         {
@@ -478,8 +516,8 @@ void DataFrame::process_buffer()
         current_frame.assign(
             buffer_queue.begin(),
             buffer_queue.begin() + end_pos + 2);
-
-        // ROS_WARN("current_frame size: %d", current_frame.size());
+        
+        //ROS_WARN("current_frame size: %d", current_frame.size());
 
         // 6. 调用解析逻辑
         if (data_recv(current_frame))
