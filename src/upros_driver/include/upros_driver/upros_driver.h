@@ -118,6 +118,9 @@ private:
     // 碰撞传感器消息
     std_msgs::Int16MultiArray bump_sensor_array;
 
+    // 舵机原始位置消息
+    std_msgs::Int16MultiArray servo_pos_array;
+
     // imu数据接收
     ros::Subscriber imu_sub;
 
@@ -158,6 +161,7 @@ private:
 
     // 机械臂位置信息发布
     ros::Publisher joint_pub;
+    ros::Publisher servo_pose_pub;
 
     // 舵机控制消息
     ros::Subscriber cmd_single_servo_sub;

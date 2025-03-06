@@ -19,6 +19,7 @@ class OdomGUI(QWidget):
     update_sonar_3_signal = pyqtSignal(float)
     update_sonar_4_signal = pyqtSignal(float)
     update_bump_signal = pyqtSignal(int, int, int, int)
+    update_servo_signal = pyqtSignal(int, int, int, int, int)
 
     def __init__(self):
         super().__init__()
@@ -37,6 +38,7 @@ class OdomGUI(QWidget):
         self.update_sonar_4_signal.connect(self.update_sonar_4_labels)
         
         self.update_bump_signal.connect(self.update_bump_labels)
+        self.update_servo_signal.connect(self.update_servo_labels)
 
     def init_ui(self):
         self.setWindowTitle("UPRos Base Monitor")
@@ -62,7 +64,13 @@ class OdomGUI(QWidget):
         self.label_bump_2 =  QLabel("碰撞 2 未触发", self)
         self.label_bump_3 =  QLabel("碰撞 3 未触发", self)
         self.label_bump_4 =  QLabel("碰撞 4 未触发", self)
-        
+
+        self.label_servo_pose_1 =  QLabel("舵机 1 位置 0 ", self)
+        self.label_servo_pose_2 =  QLabel("舵机 2 位置 0 ", self)
+        self.label_servo_pose_3 =  QLabel("舵机 3 位置 0 ", self)
+        self.label_servo_pose_4 =  QLabel("舵机 4 位置 0 ", self)
+        self.label_servo_pose_5 =  QLabel("舵机 5 位置 0 ", self)
+
         # 设置字体样式（参考网页5的CSS样式）
         for label in [self.label_x, self.label_y, self.label_yaw]:
             label.setStyleSheet("font-size: 20px; color: #2c3e50;")
@@ -82,6 +90,11 @@ class OdomGUI(QWidget):
         for label in [self.label_bump_1, self.label_bump_2, self.label_bump_3, self.label_bump_4]:
             label.setStyleSheet("font-size: 20px; color: #2c3e50;")
             layout.addWidget(label)
+
+        # 设置字体样式（参考网页5的CSS样式）
+        for label in [self.label_servo_pose_1, self.label_servo_pose_2, self.label_servo_pose_3, self.label_servo_pose_4, self.label_servo_pose_5]:
+            label.setStyleSheet("font-size: 20px; color: #2c3e50;")
+            layout.addWidget(label)
                    
         self.setLayout(layout)
 
@@ -97,6 +110,7 @@ class OdomGUI(QWidget):
         rospy.Subscriber("/ul/sensor3", Range, self.ul_sensor_3_callback)
         rospy.Subscriber("/ul/sensor4", Range, self.ul_sensor_4_callback)
         rospy.Subscriber("/robot/bump_sensor", Int16MultiArray, self.bump_callback)
+        rospy.Subscriber("/robot/servo_position", Int16MultiArray, self.servo_pose_callback)
         
     def odom_callback(self, msg):
         # 解析四元数转欧拉角
@@ -144,6 +158,14 @@ class OdomGUI(QWidget):
         bump_3 = msg.data[2]
         bump_4 = msg.data[3]
         self.update_bump_signal.emit(bump_1, bump_2, bump_3, bump_4)
+
+    def servo_pose_callback(self,msg):
+        servo_1 = msg.data[0]
+        servo_2 = msg.data[1]
+        servo_3 = msg.data[2]
+        servo_4 = msg.data[3]
+        servo_5 = msg.data[4]
+        self.update_servo_signal.emit(servo_1, servo_2, servo_3, servo_4, servo_5)
 
     def update_odom_labels(self, x, y, yaw):
         # 更新界面数据
@@ -200,6 +222,13 @@ class OdomGUI(QWidget):
             self.label_bump_4.setText(f"碰撞 4 未触发")
         elif bump_4 == 1:
             self.label_bump_4.setText(f"碰撞 4 触发")
+    
+    def update_servo_labels(self, servo_1, servo_2, servo_3, servo_4, servo_5):
+        self.label_servo_pose_1.setText(f"舵机 1 位置: {servo_1:d} ")
+        self.label_servo_pose_2.setText(f"舵机 2 位置: {servo_2:d} ")
+        self.label_servo_pose_3.setText(f"舵机 3 位置: {servo_3:d} ")
+        self.label_servo_pose_4.setText(f"舵机 4 位置: {servo_4:d} ")
+        self.label_servo_pose_5.setText(f"舵机 5 位置: {servo_5:d} ")
             
 
     def ros_spin(self):

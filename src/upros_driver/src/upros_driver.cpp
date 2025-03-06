@@ -45,6 +45,7 @@ void UprosDriver::init_topic()
     cmd_single_servo_sub = nh.subscribe(bdg.cmd_single_servo_topic, 1000, &UprosDriver::cmd_single_servo_callback, this);
     cmd_multiple_servo_sub = nh.subscribe(bdg.cmd_multiple_servo_topic, 1000, &UprosDriver::cmd_multiple_servo_callback, this);
     odom_pub = nh.advertise<nav_msgs::Odometry>(bdg.odom_topic, 50);
+    servo_pose_pub = nh.advertise<std_msgs::Int16MultiArray>("/robot/servo_position", 50);
 }
 
 // 初始化超声波传感器、TOF传感器信息
@@ -553,9 +554,18 @@ void UprosDriver::update_joint_info()
     // 发送查询指令
     frame->send_message(0x01, CMD_READ_SERVO_POS, Servo_Addr, params, sizeof(params));
 
+
+    std::vector<int16_t> array;
+    for (int i=0; i<5; i++)
+    {
+        array.push_back(Data_holder::get()->servo_pos.servo_pos[i]);
+    }
+    servo_pos_array.data = array;
+    servo_pose_pub.publish(servo_pos_array);
+
+    // 发送 joint 指令
     ros::Time current_time = ros::Time::now();
     joint_info.header.stamp = current_time;
-
     // 查询机械臂舵机
     float joint1_pos = Data_holder::get()->servo_pos.servo_pos[0] / 10.0f / 180.0f * M_PI;
     float joint2_pos = Data_holder::get()->servo_pos.servo_pos[1] / 10.0f / 180.0f * M_PI;
