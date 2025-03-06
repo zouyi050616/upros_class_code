@@ -16,6 +16,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self,parent = None):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
+        # 初始化串口通信类
         self.robot = RobotCommunication(self)
         # 设置实例
         self.CreateItems()
@@ -26,8 +27,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.trun_speed = 50
         self.servo_speed = 50
         self.ch_type_index = 0
+        # 显示当前镜像版本号
         self.show_img_version()
 
+    # 获取镜像当前版本号
     def show_img_version(self):
         version_file = "/home/bcsh/.img_version.txt"
         try:
@@ -132,10 +135,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.robot.single_servo_control(servo_id, servo_pos, self.servo_speed)
 
     # 修改舵机ID
-    def update_servo_id(self):
-        old_id = int(self.ed_ori_servo_id.text())
-        new_id = int(self.ed_new_servo_id.text())
-        self.robot.update_servo_id(old_id, new_id)
+    # def update_servo_id(self):
+    #     old_id = int(self.ed_ori_servo_id.text())
+    #     new_id = int(self.ed_new_servo_id.text())
+    #     self.robot.update_servo_id(old_id, new_id)
 
     # 超声波TOF数据返回
     def ul_tof_callback(self, tof1, ul1, tof2, ul2, tof3, ul3, tof4, ul4):
@@ -159,10 +162,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.coll_3.setText("触发" if collision3 == 1 else "未触发")
         self.coll_4.setText("触发" if collision4 == 1 else "未触发")
 
-    def servo_callback(self, servo_id, servo_pos):
-        self.servo_lists.append("舵机ID:{}----舵机位置：{}".format(servo_id, servo_pos))
-        self.servo_infos.append((servo_id, servo_pos))
-        self.servo_model.setStringList(self.servo_lists)
+    def servo_callback(self, positions):
+
+        for i in range (len(positions)):
+            self.servo_lists.append("舵机ID:{}----舵机位置：{}".format(i, positions[i]))
+            self.servo_infos.append((i, positions[i]))
+            self.servo_model.setStringList(self.servo_lists)
         # 设置列表视图的模型
         self.list_servo.setModel(self.servo_model)
 

@@ -76,7 +76,8 @@ class RobotCommunication:
                 odom_yaw = int.from_bytes(data[18:20], byteorder='little', signed=True)
                 if self.odom_callback is not None:
                     self.odom_callback(odom_x, odom_y, odom_yaw)
-            # 传感器数据返回
+
+            # 碰撞传感器数据返回
             if data[2] == data_frame.ID_GET_SENSOR and data_size == 30:
                 collision1 = (data[28] >> 0) & 1
                 collision2 = (data[28] >> 1) & 1

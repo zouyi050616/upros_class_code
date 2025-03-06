@@ -1,21 +1,37 @@
 # 帧头
-HEAD1 = 0x5A
-HEAD2 = 0xA5
-# 设置底盘形态
-ID_SET_CHASSISS_TYPE = 0x01
-# 控制底盘移动
-ID_SET_ROBOT_SPEED = 0x04
-# 获取里程计信息
-ID_GET_ODOM = 0x05
-# 清空里程计信息
-ID_CLEAR_ODOM = 0x06
-# 单个舵机运动
-ID_SINGLE_SERVO = 0x08
-# 获取舵机信息
-ID_GET_SERVO_INFO = 0x0A
-# 修改舵机ID
-ID_EDIT_SERVO_ID = 0x0B
-# 获取超声波和TOF传感器信息
-ID_GET_UL_TOF = 0x0C
-# 获取其他传感器信息：碰撞
-ID_GET_SENSOR = 0x0D
+HEAD1 = 0xAA
+HEAD2 = 0xAA
+
+# 帧尾
+END1 = 0x55
+END2 = 0x55
+
+# 读 RAM
+CMD_READ_RAM = 0x03
+# 写 RAM
+CMD_WRITE_RAM = 0x06
+# 写舵机位置
+CMD_WRITE_SERVO_POS = 0x04
+# 读舵机位置
+CMD_READ_SERVO_POS = 0x05
+# 读取数据返回
+CMD_READ_RETURN = 0x30
+#读取舵机位置返回
+CMD_SERVO_READ_RETURN = 0x50
+
+#初始化底盘地址
+Init_Chassis = 3007
+# 设置速度地址
+Set_Vel_Addr = 3001
+# 读取传感器地址
+Read_Addr = 4000
+#舵机地址
+Servo_Addr = 0
+
+Motor_Encoder = 64.0
+Motor_Ratio = 90.0
+
+Diff_Wheel_Radius = 0.99
+Omni_Wheel_Radius = 0.075
+Mec_wheel_Radius = 0.075
+
