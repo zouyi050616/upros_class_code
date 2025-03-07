@@ -1,6 +1,4 @@
 gnome-terminal --window -e 'bash -c "roscore; exec bash"' \
---tab -e 'bash -c "sleep 3; roslaunch upros_bringup bringup_w2a.launch; exec bash"' \
---tab -e 'bash -c "sleep 3; roslaunch upros_navigation navigation.launch; exec bash"' \
---tab -e 'bash -c "sleep 3; roslaunch upros_core_move core_move.launch; exec bash"' \
---tab -e 'bash -c "sleep 3; rosrun clean_robot core_move_client; exec bash"' \
---tab -e 'bash -c "sleep 3; roslaunch upros_navigation view_nav.launch; exec bash"' \
+--tab -e 'bash -c "sleep 3; roslaunch clean_desktop_robot clean_desktop_robot_w2a.launch; exec bash"' \
+--tab -e 'bash -c "sleep 3; roslaunch clean_desktop_robot view_grab.launch; exec bash"' \
+--tab -e 'bash -c "sleep 15; rosrun clean_desktop_robot task_flow_node; exec bash"' \
