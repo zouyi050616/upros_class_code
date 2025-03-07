@@ -16,7 +16,7 @@ class RobotControlGUI(QWidget):
     def init_ros(self):
         rospy.init_node('pyqt_robot_controller', anonymous=True)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        self.servo_pub = rospy.Publisher('/single_servo', SingleServo, queue_size=10)
+        self.servo_pub = rospy.Publisher('/single_servo_topic', SingleServo, queue_size=10)
         for i in range (5):
             servo = SingleServo()
             servo.ID = i+1
@@ -176,7 +176,7 @@ class RobotControlGUI(QWidget):
         self.speed_label.setText(f'速度倍率: {value}%')
 
     def publish_servo_position_1(self, value):
-        self.servo_1_label.setText(f'舵机 1 位置: {value}%')   
+        self.servo_1_label.setText(f'舵机 1 位置: {value}')   
         servo = SingleServo()
         servo.ID = 1
         servo.Target_position_Angle = value
@@ -184,7 +184,7 @@ class RobotControlGUI(QWidget):
         self.servo_pub.publish(servo)    
 
     def publish_servo_position_2(self, value):
-        self.servo_2_label.setText(f'舵机 2 位置: {value}%')   
+        self.servo_2_label.setText(f'舵机 2 位置: {value}')   
         servo = SingleServo()
         servo.ID = 2
         servo.Target_position_Angle = value
@@ -192,7 +192,7 @@ class RobotControlGUI(QWidget):
         self.servo_pub.publish(servo)  
 
     def publish_servo_position_3(self, value):
-        self.servo_3_label.setText(f'舵机 3 位置: {value}%')   
+        self.servo_3_label.setText(f'舵机 3 位置: {value}')   
         servo = SingleServo()
         servo.ID = 3
         servo.Target_position_Angle = value
@@ -200,7 +200,7 @@ class RobotControlGUI(QWidget):
         self.servo_pub.publish(servo)  
 
     def publish_servo_position_4(self, value):
-        self.servo_4_label.setText(f'舵机 4 位置: {value}%')   
+        self.servo_4_label.setText(f'舵机 4 位置: {value}')   
         servo = SingleServo()
         servo.ID = 4
         servo.Target_position_Angle = value
@@ -208,7 +208,7 @@ class RobotControlGUI(QWidget):
         self.servo_pub.publish(servo)  
 
     def publish_servo_position_5(self, value):
-        self.servo_5_label.setText(f'舵机 5 位置: {value}%')   
+        self.servo_5_label.setText(f'舵机 5 位置: {value}')   
         servo = SingleServo()
         servo.ID = 5
         servo.Target_position_Angle = value
@@ -216,7 +216,7 @@ class RobotControlGUI(QWidget):
         self.servo_pub.publish(servo)  
 
     def publish_servo_position_6(self, value):
-        self.servo_6_label.setText(f'舵机 6 位置: {value}%')   
+        self.servo_6_label.setText(f'舵机 6 位置: {value}')   
         servo = SingleServo()
         servo.ID = 6
         servo.Target_position_Angle = value
