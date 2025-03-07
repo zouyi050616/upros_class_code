@@ -14,7 +14,7 @@ class ImageSubscriberNode:
         
         options = apriltag.DetectorOptions(families='tag36h11')
         self.tag_detector = apriltag.Detector(options)
-        self.tag_id = 3
+        self.tag_id = 1
         
         self.bridge = CvBridge()  
         self.image_sub = rospy.Subscriber('/camera/color/image_raw', Image, self.image_callback) 

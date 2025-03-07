@@ -33,7 +33,7 @@
         <node pkg="tf" type="static_transform_publisher" name="base_link_to_arm_base_link" args="0.120 0 0.106 0 0 0 base_link arm_base_link 100" />
 
         <!-- tf静态变换-机体坐标系到相机 -->
-        <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera_link" args="0.172 0.025 0.032 0 0 0 base_link camera_link 100" />
+        <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera_link" args="0.172 0.00 0.032 0 0 0 base_link camera_link 100" />
 
         <!-- tf静态变换-机体到超声波传感器 -->
         <node pkg="tf" type="static_transform_publisher" name="base_link_to_ulsensor1" args="0.165 0 0.12 0 0 0  base_link ul_sensor1  100" />

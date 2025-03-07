@@ -42,7 +42,7 @@
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_arm_base_link" args="0.0 0.0 0.1704 0 0 0 base_link arm_base_link 100" />
 
     <!-- tf静态变换-深度相机 -->
-    <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera_link" args="0.142 0.04 0.10 0 0 0 base_link camera_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link_to_camera_link" args="0.142 0.00 0.10 0 0 0 base_link camera_link 100" />
 
     <!-- tf静态变换-超声波传感器，构型不同，位置不同；1、2、3分别对应左、中、右 -->
     <node pkg="tf" type="static_transform_publisher" name="base_link_to_ulsensor1" args="0.11 0 0.11 0.785 0 0  base_link ul_sensor1  100"/>
