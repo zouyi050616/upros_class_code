@@ -230,9 +230,12 @@ class OdomGUI(QWidget):
         self.label_servo_pose_4.setText(f"舵机 4 位置: {servo_4:d} ")
         self.label_servo_pose_5.setText(f"舵机 5 位置: {servo_5:d} ")
             
-
     def ros_spin(self):
         rospy.spin()  # 非阻塞式处理ROS消息
+
+    def closeEvent(self, event):
+        rospy.signal_shutdown("GUI closed")
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
