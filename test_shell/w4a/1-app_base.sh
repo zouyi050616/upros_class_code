@@ -1,1 +1,1 @@
-python3 /home/bcsh/upros_class_code/src/gui/wa4_base/main.py
+python3 /home/bcsh/upros_class_code/src/gui/w4a_base/main.py
