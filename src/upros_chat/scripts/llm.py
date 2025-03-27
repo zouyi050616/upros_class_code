@@ -3,7 +3,7 @@ from openai import OpenAI
 import rospy
 from std_msgs.msg import String
 
-api_key = "sk-pCpQNPEzTOQTBvYNP8XL3EOz0z9y8FuHH1ZkmNMSpVHdsOd7"
+api_key = "sk-aTDemqxcD49oRFND5oeoSRbVaQSNtt10eRUgWTDiQ4xBsZZn"
 base_url = "https://api.moonshot.cn/v1"
 
 class LLM(OpenAI):
@@ -21,7 +21,6 @@ class LLM(OpenAI):
         rospy.init_node('robot_voice_llm_node', anonymous=True)
         rospy.Subscriber("/robot_voice/speech/result", String, self.speech_result_callback)
         self.llm_pub = rospy.Publisher('/robot_voice/llm/result',String, queue_size = 10)
-
 
     def speech_result_callback(self, msg):
         result = msg.data

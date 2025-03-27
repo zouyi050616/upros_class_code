@@ -6,12 +6,11 @@ import sys
 import threading
 import time
 import numpy as np
+import subprocess
 import sherpa_onnx
 import soundfile as sf
-import sounddevice as sd
 import rospy
 from std_msgs.msg import String
-
 
 MODEL_ROOT = "/home/bcsh/Documents/Models/vits-zh-hf-fanchen-C"
 VITS_MODEL = MODEL_ROOT + "/vits-zh-hf-fanchen-C.onnx"
@@ -56,7 +55,6 @@ class TTSPlayer:
         rospy.Subscriber("/robot_voice/llm/result", String, self.speech_result_callback)
         self.speech_pub = rospy.Publisher('/robot_voice/speech/task',String, queue_size = 10)
 
-
     def speech_result_callback(self, msg):
         result = msg.data
         if result:
@@ -67,7 +65,6 @@ class TTSPlayer:
         self.stopped = False
         self.killed = False
         self.event.clear()
-
 
     def load_model(self):
         """加载TTS模型并初始化"""
@@ -81,7 +78,6 @@ class TTSPlayer:
     def configure_logging(self):
         formatter = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s"
         logging.basicConfig(format=formatter, level=logging.INFO if self.args.debug else logging.WARNING)
-
 
     def generate_self_config(self):
         tts_config = sherpa_onnx.OfflineTtsConfig(
@@ -104,85 +100,27 @@ class TTSPlayer:
         if not self.args.vits_model:
             raise ValueError("--vits-model must be provided")
 
-    def play_audio_callback(self, outdata, frames, time, status):
-        if self.killed or (self.started and self.buffer.empty() and self.stopped):
-            self.event.set()
-        if self.buffer.empty():
-            outdata.fill(0)
+    def generate_and_play(self, text):
+        self.reset_flags_and_event()
+        if not self.tts_config.validate():
+            raise ValueError("请检查你的配置文件")
+        print("开始生成语音 ...")
+        audio = self.tts.generate(text,sid=self.args.sid,speed=self.args.speed)
+        print("生成语音结束 ...")
+        self.stopped = True
+        if len(audio.samples) == 0:
+            print("语音生成错误")
+            self.killed = True
             return
-        n = 0
-        while n < frames and not self.buffer.empty():
-            remaining = frames - n
-            k = self.buffer.queue[0].shape[0]
-            if remaining <= k:
-                outdata[n:, 0] = self.buffer.queue[0][:remaining]
-                self.buffer.queue[0] = self.buffer.queue[0][remaining:]
-                n = frames
-                if self.buffer.queue[0].shape[0] == 0:
-                    self.buffer.get()
-                break
-            outdata[n : n + k, 0] = self.buffer.get()
-            n += k
-        if n < frames:
-            outdata[n:, 0] = 0
-
-    def play_audio(self):
-        with sd.OutputStream(
-            channels=1,
-            callback=self.play_audio_callback,
-            dtype="float32",
-            samplerate=self.sample_rate,
-            blocksize=1024,
-        ):
-            self.event.wait()
+        sf.write(self.args.output_filename,audio.samples,samplerate=audio.sample_rate,subtype="PCM_16")
+        print("保存文件完成")
+        time.sleep(1.0)
+        subprocess.run(["aplay", self.output_filename])
         msg = String()
         msg.data = "start"
         #说完了，发布这个Topic通知机器人可以继续语音识别了
         self.speech_pub.publish(msg)
-        logging.info("Exiting ...")
-
-    def generated_audio_callback(self, samples: np.ndarray, progress: float):
-        if self.first_message_time is None:
-            self.first_message_time = time.time()
-
-        self.buffer.put(samples)
-        if not self.started:
-            logging.info("Start playing ...")
-        self.started = True
-
-    def generate_and_play(self, text):
-
-        self.reset_flags_and_event()
-
-        if not self.tts_config.validate():
-            raise ValueError("Please check your config")
-
-        play_back_thread = threading.Thread(target=self.play_audio)
-        play_back_thread.start()
-
-        logging.info("Start generating ...")
-        audio = self.tts.generate(
-            text,
-            sid=self.args.sid,
-            speed=self.args.speed,
-            callback=self.generated_audio_callback,
-        )
-        logging.info("Finished generating!")
-        self.stopped = True
-        if len(audio.samples) == 0:
-            logging.error("Error in generating audios. Please read previous error messages.")
-            self.killed = True
-            play_back_thread.join()
-            return
-        sf.write(
-            self.args.output_filename,
-            audio.samples,
-            samplerate=audio.sample_rate,
-            subtype="PCM_16",
-        )
-        logging.info(f"Saved to {self.args.output_filename}")
-        play_back_thread.join()
-
+        print("可以继续了 ...")
 
 if __name__ == "__main__":
     try:
