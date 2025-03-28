@@ -16,7 +16,6 @@ ENCODER = "encoder-epoch-99-avg-1.onnx"
 DECODER = "decoder-epoch-99-avg-1.onnx"
 JOINER = "joiner-epoch-99-avg-1.onnx"
 TOKENS = "tokens.txt"
-WAKEUP_WORD = "小月"
 
 class SpeechRecognition:
 
@@ -35,54 +34,60 @@ class SpeechRecognition:
         self.recognizer = self.create_recognizer()
         print("Started! Please speak")
         self.stream = self.recognizer.create_stream()
+        self.asr_result = "" 
         self.start()
     
     #收到'start'指令，speech_flag置为True
     def speech_callback(self, msg):
         if msg.data == "start":
+            self.recognizer.reset(self.stream)
+            self.asr_result = ""
+            print("Continue Chatting....")
             self.speech_flag = True
            
     def start(self):
-        
         sample_rate = 16000
         samples_per_read = int(0.1 * sample_rate)  # 0.1 second = 100 ms
-
         last_result = ""
         is_new_speech = True
         with sd.InputStream(channels=1, dtype="float32", samplerate=sample_rate) as s:
             while True:
-                samples, _ = s.read(samples_per_read)  # a blocking read
-                samples = samples.reshape(-1)
-                self.stream.accept_waveform(sample_rate, samples)
+                samples, _ = s.read(samples_per_read)  # 获取音频流
+                samples = samples.reshape(-1) #展平成一维数组
+                
+                self.stream.accept_waveform(sample_rate, samples) #数据流管道输入
 
-                while self.recognizer.is_ready(self.stream):
+                while self.recognizer.is_ready(self.stream): #解码
                     self.recognizer.decode_stream(self.stream)
-
-                is_endpoint = self.recognizer.is_endpoint(self.stream)
+                         
+                # 获取识别结果
                 result = self.recognizer.get_result(self.stream)
+                
+                # 对比识别结果字符串，如果更新则替换
                 if result and (last_result != result):
                     result_diff = result.replace(last_result, "")
                     last_result = result
                     if is_new_speech:
                         is_new_speech = False
                         timestamp = datetime.datetime.now()
-
-
+                    print(result)
+                
+                self.asr_result = result
+                
+                # 到了语音音频的结束点
+                is_endpoint = self.recognizer.is_endpoint(self.stream)
+                
+                # 语音停止输入了
                 if is_endpoint:
-                    if result and self.speech_flag:
-                        print(result)
+                    if self.asr_result and self.speech_flag:
+                        print(self.asr_result)
                         duration =  datetime.datetime.now() - timestamp
                         print("Recognize Duration: " + str(duration))
-                        #如果唤醒词“小月”在识别的结果里，则ding的一声
-                        if WAKEUP_WORD in result:
-                            self.recognizer.reset(self.stream)
-                            self.play_wav()
                         #识别结果通过topic的形式发布出去
-                        else:
-                            msg = String()
-                            msg.data = result
-                            self.speech_result_pub.publish(msg)
-                            self.speech_flag = False
+                        msg = String()
+                        msg.data = result
+                        self.speech_result_pub.publish(msg)
+                        self.speech_flag = False
                         is_new_speech = True
                     self.recognizer.reset(self.stream)
 
@@ -107,42 +112,7 @@ class SpeechRecognition:
             blank_penalty=0.0,
         )
         return recognizer
-    
-    #播放'ding'的一声
-    def play_wav(self):
-        current_path = sys.path[0]
-        wav_file = current_path + "/res/ding.wav"
-        wf = wave.open(wav_file, 'rb')
-        p = pyaudio.PyAudio()
-    
-        stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                        channels=wf.getnchannels(),
-                        rate=wf.getframerate(),
-                        output=True)
-    
-        data = wf.readframes(1024)
-    
-        while data != b'':
-            stream.write(data)
-            data = wf.readframes(1024)
-    
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        wf.close()
-        time.sleep(2)
-        self.start()
-        
-    
-def construct_json_data(timestamp, duration , message):
-    data = {
-        'timestamp': str(timestamp),
-        'duration': str(duration),
-        'message': message
-    }
-    return json.dumps(data).encode('utf-8')
-
-
+     
 if __name__ == "__main__":
     try:
         speech = SpeechRecognition()

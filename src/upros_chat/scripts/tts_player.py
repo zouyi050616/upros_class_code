@@ -28,7 +28,7 @@ defualt_args = argparse.Namespace(
     vits_length_scale=1.0,
     vits_dict_dir=DICT_DIR,
     tts_rule_fsts=TTS_RULE_FSTS,
-    output_filename=current_path + "/res/generated.wav",
+    output_filename=current_path + "generated.wav",
     sid=100,
     debug=False,
     provider="cpu",
@@ -70,10 +70,10 @@ class TTSPlayer:
         """加载TTS模型并初始化"""
         if not self.tts_config.validate():
             raise ValueError("Please check your config")
-        logging.info("Loading model ...")
+        print("Loading model ...")
         self.tts = sherpa_onnx.OfflineTts(self.tts_config)
         self.sample_rate = self.tts.sample_rate
-        logging.info("Model loaded.")
+        print("Model loaded.")
 
     def configure_logging(self):
         formatter = "%(asctime)s %(levelname)s [%(filename)s:%(lineno)d] %(message)s"
@@ -115,7 +115,7 @@ class TTSPlayer:
         sf.write(self.args.output_filename,audio.samples,samplerate=audio.sample_rate,subtype="PCM_16")
         print("保存文件完成")
         time.sleep(1.0)
-        subprocess.run(["aplay", self.output_filename])
+        subprocess.run(["aplay", self.args.output_filename])
         msg = String()
         msg.data = "start"
         #说完了，发布这个Topic通知机器人可以继续语音识别了
