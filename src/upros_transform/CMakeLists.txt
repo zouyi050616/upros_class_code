@@ -20,3 +20,6 @@ target_link_libraries(tf_listen_node ${catkin_LIBRARIES})
 
 add_executable(tf_echo_node src/tf_echo.cpp)
 target_link_libraries(tf_echo_node ${catkin_LIBRARIES})
+
+add_executable(odom_app_node src/odom_app.cpp)
+target_link_libraries(odom_app_node ${catkin_LIBRARIES})
