@@ -16,7 +16,7 @@ public:
         sensor_msgs::LaserScan filtered_scan = *msg;
         const float isolation_threshold = 0.05; // 孤立点判定阈值
 
-        // 第一步：过滤范围外的点
+        // 第一步：过滤范围外的点 距离过滤
         for (size_t i = 0; i < filtered_scan.ranges.size(); ++i)
         {
             if (filtered_scan.ranges[i] < 0.25 || filtered_scan.ranges[i] > 12.0)
@@ -25,7 +25,7 @@ public:
             }
         }
 
-        // 第二步：检测孤立点
+        // 第二步：孤立点过滤
         for (size_t i = 0; i < filtered_scan.ranges.size(); ++i)
         {
             if (std::isnan(filtered_scan.ranges[i]))

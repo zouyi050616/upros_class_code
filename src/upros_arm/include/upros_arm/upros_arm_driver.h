@@ -54,7 +54,7 @@ public:
     {
         upros_message::SingleServo single_servo;
         single_servo.ID = 6;
-        single_servo.Rotation_Speed = 50;
+        single_servo.Rotation_Speed = 125;
         single_servo.Target_position_Angle = 580;
         single_joint_pub_.publish(single_servo);
     }
@@ -63,7 +63,7 @@ public:
     {
         upros_message::SingleServo single_servo;
         single_servo.ID = 6;
-        single_servo.Rotation_Speed = 50;
+        single_servo.Rotation_Speed = 125;
         single_servo.Target_position_Angle = -300;
         single_joint_pub_.publish(single_servo);
     }
@@ -76,7 +76,7 @@ public:
         {
             upros_message::SingleServo single_servo;
             single_servo.ID = i + 1;
-            single_servo.Rotation_Speed = 50;
+            single_servo.Rotation_Speed = 125;
             single_servo.Target_position_Angle = 0 + servo_bias_[i];
             if(i == 4){
                 single_servo.Target_position_Angle = 0;
@@ -231,7 +231,7 @@ public:
         {
             upros_message::SingleServo single_servo;
             single_servo.ID = i + 1;
-            single_servo.Rotation_Speed = 50;
+            single_servo.Rotation_Speed = 125;
             single_servo.Target_position_Angle = servo_angle[i] + servo_bias_[i];
             if(i == 4){
                 single_servo.Target_position_Angle = 0;
@@ -252,7 +252,7 @@ public:
         {
             upros_message::SingleServo single_servo;
             single_servo.ID = i + 1;
-            single_servo.Rotation_Speed = 50;
+            single_servo.Rotation_Speed = 125;
             single_servo.Target_position_Angle = servo_angle[i] + servo_bias_[i];
             if(i == 4){
                 single_servo.Target_position_Angle = 0;

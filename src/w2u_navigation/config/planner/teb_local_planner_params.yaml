@@ -1,13 +1,13 @@
 #局部路径规划器TEBPlannerROS命名空间
 TebLocalPlannerROS:
   #机器人参数
-  max_vel_x: 0.3 #最大x前向速度，单位：m/s
+  max_vel_x: 2.0 #最大x前向速度，单位：m/s
   max_vel_y: 0.0 #最大y前向速度，单位：m/s，非全向移动小车需要设置为0
-  max_vel_x_backwards: 0.5 #最大后退速度，单位：m/s
-  max_vel_theta: 1.5  #最大转向角速度，单位：rad/s
-  acc_lim_x: 0.1  #最大x向加速度，单位：m/s^2
-  acc_lim_y: 0.1  #最大y向加速度，，单位：m/s^2,非全向移动小车需要设置为0
-  acc_lim_theta: 0.3  #最大角加速度，单位：rad/s^2
+  max_vel_x_backwards: 0.8 #最大后退速度，单位：m/s
+  max_vel_theta: 2.5  #最大转向角速度，单位：rad/s
+  acc_lim_x: 0.3  #最大x向加速度，单位：m/s^2
+  acc_lim_y: 0.3  #最大y向加速度，，单位：m/s^2,非全向移动小车需要设置为0
+  acc_lim_theta: 0.5  #最大角加速度，单位：rad/s^2
 
   #阿克曼小车参数，非阿克曼小车设置为0
   min_turning_radius: 0.0 #机器人最小转弯半径
@@ -19,13 +19,15 @@ TebLocalPlannerROS:
   #机器人外形的类型可以为：point、circular、two_circles、line、polygon，默认为point类型
   footprint_model:    
     type: polygon
-    vertices: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]] #多边形端点坐标
+    # vertices: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]] #多边形端点坐标
+    vertices: [[-0.13, -0.13], [-0.13, 0.13], [0.13, 0.13], [0.13, -0.13]] #多边形端点坐标
 
   odom_topic: odom #订阅的里程计话题
+  
   map_frame: map #代价地图的TF参考坐标系
 
   #障碍物参数
-  min_obstacle_dist: 0.05 #和障碍物最小距离，直接影响机器人避障效果
+  min_obstacle_dist: 0.03 #和障碍物最小距离，直接影响机器人避障效果  0.05
   # min_obstacle_dist: 0.25 #和障碍物最小距离，直接影响机器人避障效果
   include_costmap_obstacles: True #是否将动态障碍物预测为速度模型，
   costmap_obstacles_behind_robot_dist: 1.5 #限制机器人后方规划时考虑的局部成本地图障碍物
@@ -39,7 +41,7 @@ TebLocalPlannerROS:
   #目标点误差允许值
   xy_goal_tolerance: 0.03 #机器人到达目标点时附近时的弧度偏差允许量，在该偏差内认为已经到达目标点，单位为：m
   yaw_goal_tolerance: 0.08 #机器人到达目标点时附近时的弧度偏差允许量，在该偏差内认为已经到达目标点单位为：rad
-  free_goal_vel: False    #允许机器人以最大速度驶向目的地
+  free_goal_vel: True    #允许机器人以最大速度驶向目的地
 
   #轨道配置参数
   teb_autosize: True #优化期间允许改变轨迹的时域长度

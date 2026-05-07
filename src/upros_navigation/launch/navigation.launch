@@ -4,7 +4,7 @@
 
   <arg name="map_name" default="my_lab.yaml" />
 
-  <node pkg="upros_lidar_filter" type="blob_lidar_filter" name="blob_lidar_filter" output="screen"/>
+  
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find upros_navigation)/maps/$(arg map_name)"/>
 
