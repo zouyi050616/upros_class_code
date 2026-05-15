@@ -5,13 +5,13 @@
 
 
     <node pkg="amcl" type="amcl" name="amcl" clear_params="true">
+      <remap from="scan" to="$(arg scan_topic)"/>
 
       <param name="use_map_topic" value="$(arg use_map_topic)"/>
 
       <param name="odom_frame_id" value="odom_combined"/>
       <param name="base_frame_id" value="base_footprint"/>
       <param name="global_frame_id" value="map"/>
-      <param name="scan_topic" value="$(arg scan_topic)"/>
 
       <param name="min_particles"             value="500"/>
       <param name="max_particles"             value="2000"/>
@@ -48,4 +48,3 @@
 
     </node>
 </launch>
-

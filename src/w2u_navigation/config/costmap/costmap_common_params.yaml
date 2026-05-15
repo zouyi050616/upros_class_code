@@ -8,7 +8,7 @@ footprint: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]]
 inflation_layer:
   enabled: true
   cost_scaling_factor: 2.5
-  inflation_radius: 1.2
+  inflation_radius: 0.15
 
 #设置静态层参数
 static_layer:
@@ -24,9 +24,18 @@ obstacle_layer:
   track_unknown_space: true
   obstacle_range: 2.5
   raytrace_range: 3.0
-  observation_sources: scan
-  scan:
+  # scan_mark：用滤波后的雷达点标记障碍，避免孤立噪点进入 costmap。
+  # scan_clear：用原始雷达做清除射线。这样人/误点离开后，即使 scan_filtered 把该方向变成 NaN，
+  # costmap 仍然能根据 /scan 的空闲射线把旧障碍清掉。
+  observation_sources: scan_mark scan_clear
+  scan_mark:
     topic: scan_filtered
     data_type: LaserScan
-    clearing: true
+    clearing: false
     marking: true
+  scan_clear:
+    topic: scan
+    data_type: LaserScan
+    clearing: true
+    marking: false
+    inf_is_valid: true

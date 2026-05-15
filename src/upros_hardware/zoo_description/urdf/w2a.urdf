@@ -4,11 +4,11 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="zoo_two_wheel_diff">
-  <link name="dummy">
+  <link name="base_footprint">
 
   </link>
-  <joint name="dummy_joint" type="fixed">
-     <parent link="dummy"/>
+  <joint name="base_footprint_joint" type="fixed">
+     <parent link="base_footprint"/>
      <child link="base_link"/>
    </joint>
   <link

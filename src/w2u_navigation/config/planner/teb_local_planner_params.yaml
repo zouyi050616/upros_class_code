@@ -1,107 +1,190 @@
-#局部路径规划器TEBPlannerROS命名空间
+# TEB 局部路径规划器参数。该文件会加载到 /move_base/TebLocalPlannerROS 命名空间。
 TebLocalPlannerROS:
-  #机器人参数
-  max_vel_x: 2.0 #最大x前向速度，单位：m/s
-  max_vel_y: 0.0 #最大y前向速度，单位：m/s，非全向移动小车需要设置为0
-  max_vel_x_backwards: 0.8 #最大后退速度，单位：m/s
-  max_vel_theta: 2.5  #最大转向角速度，单位：rad/s
-  acc_lim_x: 0.3  #最大x向加速度，单位：m/s^2
-  acc_lim_y: 0.3  #最大y向加速度，，单位：m/s^2,非全向移动小车需要设置为0
-  acc_lim_theta: 0.5  #最大角加速度，单位：rad/s^2
+  # ==================== 机器人速度/加速度限制 ====================
+  # max_vel_x：最大前进速度。值越大导航越快，但靠近目标点更容易冲过头。
+  max_vel_x: 2.0
+  # max_vel_y：最大横向速度。差速/非全向底盘必须为 0。
+  max_vel_y: 0.0
+  # max_vel_x_backwards：最大倒车速度。值越大，TEB 越敢快速倒车修正终点姿态。
+  max_vel_x_backwards: 0.8
+  # max_vel_theta：最大旋转角速度。值越大转向越猛，窄通道中可能更容易抖动。
+  max_vel_theta: 2.5
+  # acc_lim_x：前后方向最大加速度。值越大起停越急，值越小动作更柔和。
+  acc_lim_x: 0.3
+  # acc_lim_y：横向最大加速度。差速/非全向底盘应为 0。
+  acc_lim_y: 0.3
+  # acc_lim_theta：最大角加速度。值越大转向响应越快，但容易急转。
+  acc_lim_theta: 0.5
 
-  #阿克曼小车参数，非阿克曼小车设置为0
-  min_turning_radius: 0.0 #机器人最小转弯半径
-  wheelbase: 0.0 #机器人轴距，前轮与后轮的距离
-  cmd_angle_instead_rotvel: False #true则cmd_vel/angular/z内的数据是舵机角度
-                                  #无论是不是阿克曼小车都设置为false，因为我们的阿克曼机器人内部进行了速度转换
+  # ==================== 底盘运动学模型 ====================
+  # min_turning_radius：最小转弯半径。差速/原地旋转底盘设 0；阿克曼车需要填实际转弯半径。
+  min_turning_radius: 0.0
+  # wheelbase：轴距。差速底盘设 0；阿克曼车填前后轮轴距。
+  wheelbase: 0.0
+  # cmd_angle_instead_rotvel：True 时 cmd_vel.angular.z 表示转向角；普通底盘保持 False。
+  cmd_angle_instead_rotvel: False
 
-  #用于局部路径规划的机器人外形
-  #机器人外形的类型可以为：point、circular、two_circles、line、polygon，默认为point类型
-  footprint_model:    
+  # ==================== 机器人外形模型 ====================
+  # footprint_model：TEB 优化使用的机器人外形，最好和 costmap footprint 尽量一致。
+  # type 可选 point/circular/two_circles/line/polygon。polygon 适合方形底盘。
+  footprint_model:
     type: polygon
-    # vertices: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]] #多边形端点坐标
-    vertices: [[-0.13, -0.13], [-0.13, 0.13], [0.13, 0.13], [0.13, -0.13]] #多边形端点坐标
+    # vertices：机器人轮廓顶点，坐标相对 base_link/base_footprint，单位 m。
+    # 这里是 0.26m x 0.26m 方形。设小会贴障碍，设大更保守。
+    # vertices: [[-0.15, -0.15], [-0.15, 0.15], [0.15, 0.15], [0.15, -0.15]]
+    vertices: [[-0.13, -0.13], [-0.13, 0.13], [0.13, 0.13], [0.13, -0.13]]
 
-  odom_topic: odom #订阅的里程计话题
-  
-  map_frame: map #代价地图的TF参考坐标系
+  # odom_topic：TEB 使用的里程计话题，必须和系统实际发布一致。
+  odom_topic: odom
+  # map_frame：规划使用的全局坐标系。通常和 move_base/global_costmap 的 global_frame 一致。
+  map_frame: map
 
-  #障碍物参数
-  min_obstacle_dist: 0.03 #和障碍物最小距离，直接影响机器人避障效果  0.05
-  # min_obstacle_dist: 0.25 #和障碍物最小距离，直接影响机器人避障效果
-  include_costmap_obstacles: True #是否将动态障碍物预测为速度模型，
-  costmap_obstacles_behind_robot_dist: 1.5 #限制机器人后方规划时考虑的局部成本地图障碍物
-  obstacle_poses_affected: 15  #障碍物姿态受影响0~30
+  # ==================== 障碍物处理 ====================
+  # min_obstacle_dist：TEB 轨迹和障碍物的最小期望距离。越大越保守，窄通道越容易走不过。
+  min_obstacle_dist: 0.03
+  # min_obstacle_dist: 0.25
+  # include_costmap_obstacles：是否把 costmap 中的障碍物加入 TEB 优化。导航避障一般要 True。
+  include_costmap_obstacles: True
+  # costmap_obstacles_behind_robot_dist：机器人后方多少米内的 costmap 障碍也参与规划。
+  # 值大时倒车更谨慎；值小时后方障碍影响更少。
+  costmap_obstacles_behind_robot_dist: 1.5
+  # obstacle_poses_affected：一个障碍物影响轨迹上的多少个位姿点。越大避障影响范围越长。
+  obstacle_poses_affected: 15
+  # costmap_converter_plugin：costmap 障碍物转换插件。空字符串表示把占用栅格当点障碍。
   costmap_converter_plugin: ""
+  # costmap_converter_spin_thread：转换插件是否单独开线程。插件为空时影响很小。
   costmap_converter_spin_thread: True
+  # costmap_converter_rate：转换插件运行频率，单位 Hz。插件为空时基本不用调。
   costmap_converter_rate: 5
-  include_dynamic_obstacles: True 
+  # include_dynamic_obstacles：是否考虑动态障碍速度模型。没有动态障碍跟踪时作用有限。
+  include_dynamic_obstacles: True
+  # dynamic_obstacle_inflation_dist：动态障碍额外膨胀距离。越大越绕开动态障碍。
   dynamic_obstacle_inflation_dist: 0.6
 
-  #目标点误差允许值
-  xy_goal_tolerance: 0.03 #机器人到达目标点时附近时的弧度偏差允许量，在该偏差内认为已经到达目标点，单位为：m
-  yaw_goal_tolerance: 0.08 #机器人到达目标点时附近时的弧度偏差允许量，在该偏差内认为已经到达目标点单位为：rad
-  free_goal_vel: True    #允许机器人以最大速度驶向目的地
+  # ==================== 目标点到达条件 ====================
+  # xy_goal_tolerance：目标点位置容差，单位 m。越小越准，但更容易在终点来回修正/过冲。
+  xy_goal_tolerance: 0.03
+  # yaw_goal_tolerance：目标点角度容差，单位 rad。越小朝向越准，但终点调整更多。
+  yaw_goal_tolerance: 0.08
+  # free_goal_vel：True 表示到达目标点时不强制速度为 0。
+  # 如果出现冲过目标点再倒回，优先考虑改 False。
+  free_goal_vel: False
 
-  #轨道配置参数
-  teb_autosize: True #优化期间允许改变轨迹的时域长度
-  dt_ref: 0.45 #局部路径规划的解析度# minimum 0.01
-  dt_hysteresis: 0.1 #允许改变的时域解析度的浮动范围， 一般为 dt_ref 的 10% 左右 minimum0.002
-  global_plan_overwrite_orientation: False #覆盖全局路径中局部路径点的朝向
-  max_global_plan_lookahead_dist: 3.0 #考虑优化的全局计划子集的最大长度
-  feasibility_check_no_poses: 5 #检测位姿可到达的时间间隔 minimum 0
+  # ==================== 轨迹时间离散/全局路径跟随 ====================
+  # teb_autosize：是否自动调整轨迹时间长度。一般保持 True。
+  teb_autosize: True
+  # dt_ref：轨迹相邻位姿的期望时间间隔，单位 s。越小轨迹更细但计算更重。
+  dt_ref: 0.45
+  # dt_hysteresis：dt_ref 的调整滞回范围，避免轨迹尺寸频繁变化。
+  dt_hysteresis: 0.1
+  # global_plan_overwrite_orientation：是否用 TEB 覆盖全局路径点朝向。
+  # False 时更尊重导航 goal 给的最终朝向。
+  global_plan_overwrite_orientation: False
+  # max_global_plan_lookahead_dist：局部规划向前参考全局路径的最大距离，单位 m。
+  max_global_plan_lookahead_dist: 3.0
+  # feasibility_check_no_poses：检查轨迹前几个位姿是否可行。越大检查越严格。
+  feasibility_check_no_poses: 5
 
-  #轨迹优化参数
+  # ==================== 优化器迭代与代价权重 ====================
+  # no_inner_iterations：每轮外层循环里的优化次数。越大优化更充分但更耗 CPU。
   no_inner_iterations: 5
+  # no_outer_iterations：外层循环次数。越大更稳定但更耗 CPU。
   no_outer_iterations: 4
+  # optimization_activate：是否启用轨迹优化。正常必须 True。
   optimization_activate: True
+  # optimization_verbose：是否打印优化细节。调试才开 True。
   optimization_verbose: False
+  # penalty_epsilon：软约束缓冲区，避免刚碰到限制就产生很大惩罚。
   penalty_epsilon: 0.1
+  # obstacle_cost_exponent：障碍物代价指数。越大越强烈惩罚贴近障碍。
   obstacle_cost_exponent: 4
+  # weight_max_vel_x：超过最大线速度的惩罚权重。
   weight_max_vel_x: 2
+  # weight_max_vel_theta：超过最大角速度的惩罚权重。
   weight_max_vel_theta: 1
+  # weight_acc_lim_x：超过线加速度限制的惩罚权重。
   weight_acc_lim_x: 1
+  # weight_acc_lim_theta：超过角加速度限制的惩罚权重。
   weight_acc_lim_theta: 1
+  # weight_kinematics_nh：非完整约束权重。差速车不能横移，通常要较大。
   weight_kinematics_nh: 1000
+  # weight_kinematics_forward_drive：偏好前进的权重。越大越不愿倒车。
+  # 如果终点前冲后倒很多，可以适当增大；如果必须倒车脱困，不能太大。
   weight_kinematics_forward_drive: 3
   # weight_kinematics_forward_drive: 1
+  # weight_kinematics_turning_radius：最小转弯半径约束权重。差速车影响较小。
   weight_kinematics_turning_radius: 1
-  weight_optimaltime: 1 #必须大于0
+  # weight_optimaltime：偏好更短时间到达。越大越追求快，可能更激进。
+  weight_optimaltime: 1
+  # weight_shortest_path：偏好路径更短。0 表示基本不考虑路径长度最短。
   weight_shortest_path: 0
+  # weight_obstacle：避障权重。越大越远离障碍，但窄通道更可能无解。
   weight_obstacle: 100
+  # weight_inflation：障碍物膨胀区惩罚权重。影响靠近膨胀层时的绕行倾向。
   weight_inflation: 0.2
   # weight_inflation: 0.2
-  weight_dynamic_obstacle: 10 
+  # weight_dynamic_obstacle：动态障碍物本体避让权重。
+  weight_dynamic_obstacle: 10
+  # weight_dynamic_obstacle_inflation：动态障碍膨胀区避让权重。
   weight_dynamic_obstacle_inflation: 0.2
+  # weight_viapoint：经过全局路径采样点的权重。越大越贴全局路径。
   weight_viapoint: 1
+  # weight_adapt_factor：每次自动调整权重的倍率，用于逐步加强约束。
   weight_adapt_factor: 2
 
-  #不同拓扑中的并行规划
+  # ==================== 多拓扑路径规划 ====================
+  # enable_homotopy_class_planning：是否同时搜索多条拓扑不同的绕行路径。
+  # True 更容易绕障，但 CPU 压力更大，窄场景可能频繁换路。
   enable_homotopy_class_planning: True
+  # enable_multithreading：多拓扑规划是否多线程计算。
   enable_multithreading: True
+  # max_number_classes：最多保留几类不同路径。越大选择更多但更耗 CPU。
   max_number_classes: 4
+  # selection_cost_hysteresis：路径切换滞回，避免频繁切换到只好一点点的路径。
   selection_cost_hysteresis: 1.0
+  # selection_prefer_initial_plan：对初始路径的偏好。越大越不容易切换路线。
   selection_prefer_initial_plan: 0.95
+  # selection_obst_cost_scale：选择路径时障碍物代价的缩放系数。
   selection_obst_cost_scale: 1.0
+  # selection_alternative_time_cost：是否用另一种时间代价方式选择路径。
   selection_alternative_time_cost: False
+  # roadmap_graph_no_samples：多拓扑路线图采样点数量。越大更全但更耗 CPU。
   roadmap_graph_no_samples: 15
+  # roadmap_graph_area_width：路线图采样区域宽度，单位 m。
   roadmap_graph_area_width: 5
+  # roadmap_graph_area_length_scale：路线图采样区域长度缩放。
   roadmap_graph_area_length_scale: 1.0
+  # h_signature_prescaler：拓扑签名缩放，影响不同路径类别的判定。
   h_signature_prescaler: 0.5
+  # h_signature_threshold：拓扑签名差异阈值，越小越容易认为路径不同。
   h_signature_threshold: 0.1
+  # obstacle_heading_threshold：障碍物朝向相关阈值，影响障碍关联。
   obstacle_heading_threshold: 0.45
+  # switching_blocking_period：切换到新拓扑路径后的禁止再次切换时间，单位 s。
   switching_blocking_period: 0.0
+  # viapoints_all_candidates：是否让所有候选路径都考虑 via-points。
   viapoints_all_candidates: True
+  # delete_detours_backwards：删除明显绕远/倒退的候选路径。
   delete_detours_backwards: True
+  # max_ratio_detours_duration_best_duration：候选路径耗时超过最优路径多少倍后删除。
   max_ratio_detours_duration_best_duration: 3.0
+  # visualize_hc_graph：是否可视化多拓扑图，调试用。
   visualize_hc_graph: False
+  # visualize_with_time_as_z_axis_scale：可视化时用 z 轴表示时间的缩放，False/0 表示关闭。
   visualize_with_time_as_z_axis_scale: False
 
-  #恢复行为
+  # ==================== 恢复/振荡处理 ====================
+  # shrink_horizon_backup：轨迹不可行时是否临时缩短规划视野，帮助脱困。
   shrink_horizon_backup: True
+  # shrink_horizon_min_duration：缩短视野恢复模式至少持续时间，单位 s。
   shrink_horizon_min_duration: 10
+  # oscillation_recovery：是否启用 TEB 自带振荡恢复。
   oscillation_recovery: False
+  # oscillation_v_eps：线速度小于该值时可能被认为接近停滞。
   oscillation_v_eps: 0.1
+  # oscillation_omega_eps：角速度小于该值时可能被认为接近停滞。
   oscillation_omega_eps: 0.1
+  # oscillation_recovery_min_duration：振荡恢复至少持续时间，单位 s。
   oscillation_recovery_min_duration: 10
+  # oscillation_filter_duration：判断振荡时观察的时间窗口，单位 s。
   oscillation_filter_duration: 10

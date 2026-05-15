@@ -4,14 +4,17 @@
 
   <arg name="map_name" default="my_lab.yaml" />
 
-  <node pkg="upros_lidar_filter" type="distance_lidar_filter" name="distance_lidar_filter" output="screen"/>
+
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(find upros_navigation)/maps/$(arg map_name)"/>
 
-  <include file="$(find w2u_navigation)/launch/include/amcl.launch.xml" />
+  
 
   <include file="$(find w2u_navigation)/launch/include/move_base.launch.xml" />
-  
+  <include file="$(find upros_navigation)/launch/include/amcl.launch.xml" />
+
     <node name="pcl_laser_icp" pkg="upros_lidar_filter" type="pcl_laser_icp" output="screen"/>
 
 </launch>
+
+
