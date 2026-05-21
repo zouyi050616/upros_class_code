@@ -43,8 +43,8 @@ TebLocalPlannerROS:
   # min_obstacle_dist：TEB 轨迹和障碍物的最小期望距离。越大越保守，窄通道越容易走不过。
   min_obstacle_dist: 0.03
   # min_obstacle_dist: 0.25
-  # include_costmap_obstacles：是否把 costmap 中的障碍物加入 TEB 优化。导航避障一般要 True。
-  include_costmap_obstacles: True
+  # include_costmap_obstacles：是否把 costmap 中的障碍物加入 TEB 优化。这里关闭，使小车主要跟随全局路径，不做局部障碍绕行。
+  include_costmap_obstacles: False
   # costmap_obstacles_behind_robot_dist：机器人后方多少米内的 costmap 障碍也参与规划。
   # 值大时倒车更谨慎；值小时后方障碍影响更少。
   costmap_obstacles_behind_robot_dist: 1.5
@@ -56,8 +56,8 @@ TebLocalPlannerROS:
   costmap_converter_spin_thread: True
   # costmap_converter_rate：转换插件运行频率，单位 Hz。插件为空时基本不用调。
   costmap_converter_rate: 5
-  # include_dynamic_obstacles：是否考虑动态障碍速度模型。没有动态障碍跟踪时作用有限。
-  include_dynamic_obstacles: True
+  # include_dynamic_obstacles：是否考虑动态障碍速度模型。关闭后不做动态障碍预测避让。
+  include_dynamic_obstacles: False
   # dynamic_obstacle_inflation_dist：动态障碍额外膨胀距离。越大越绕开动态障碍。
   dynamic_obstacle_inflation_dist: 0.6
 
@@ -82,6 +82,8 @@ TebLocalPlannerROS:
   global_plan_overwrite_orientation: False
   # max_global_plan_lookahead_dist：局部规划向前参考全局路径的最大距离，单位 m。
   max_global_plan_lookahead_dist: 3.0
+  # global_plan_viapoint_sep：从全局路径中提取 via-points 的间距，配合 weight_viapoint 让 TEB 更贴全局路径。
+  global_plan_viapoint_sep: 0.3
   # feasibility_check_no_poses：检查轨迹前几个位姿是否可行。越大检查越严格。
   feasibility_check_no_poses: 5
 
@@ -128,7 +130,7 @@ TebLocalPlannerROS:
   # weight_dynamic_obstacle_inflation：动态障碍膨胀区避让权重。
   weight_dynamic_obstacle_inflation: 0.2
   # weight_viapoint：经过全局路径采样点的权重。越大越贴全局路径。
-  weight_viapoint: 1
+  weight_viapoint: 10
   # weight_adapt_factor：每次自动调整权重的倍率，用于逐步加强约束。
   weight_adapt_factor: 2
 

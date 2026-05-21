@@ -12,9 +12,10 @@ local_costmap:
 
   plugins:
     - { name: static_layer, type: "costmap_2d::StaticLayer" }
-    - { name: obstacle_layer, type: "costmap_2d::ObstacleLayer" }
+    # 关闭实时雷达障碍层，使局部规划不根据运行过程中的雷达障碍绕行。
+    # - { name: obstacle_layer, type: "costmap_2d::ObstacleLayer" }
     - {name: costmap_prohibition_layer, type: "costmap_prohibition_layer_namespace::CostmapProhibitionLayer"} 
     - { name: inflation_layer, type: "costmap_2d::InflationLayer" }
 
   inflation_layer:
-    inflation_radius: 0.15
+    inflation_radius: 0.05

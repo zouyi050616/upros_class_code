@@ -10,6 +10,7 @@ global_costmap:
 
   plugins:
     - { name: static_layer, type: "costmap_2d::StaticLayer" }
-    - { name: obstacle_layer, type: "costmap_2d::ObstacleLayer" }
+    # 关闭实时雷达障碍层，使全局地图只参考静态地图/禁行区/膨胀层。
+    # - { name: obstacle_layer, type: "costmap_2d::ObstacleLayer" }
     - {name: costmap_prohibition_layer, type: "costmap_prohibition_layer_namespace::CostmapProhibitionLayer"} 
     - { name: inflation_layer, type: "costmap_2d::InflationLayer" }
